@@ -55,13 +55,11 @@ def spotify_callback(code: str = Query(...)):
             "spotify_tracks": {},
         }
 
-        return RedirectResponse(
-            url=(
-                "http://127.0.0.1:5173/"
-                f"?session_id={session_id}"
-                f"&user={user['display_name']}"
-            )
-        )
+        return {
+            "message": "Spotify autenticado",
+            "session_id": session_id,
+            "user": sessions[session_id]["spotify_user"],
+        }
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
