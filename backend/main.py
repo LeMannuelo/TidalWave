@@ -6,8 +6,10 @@ from typing import List
 from pydantic import BaseModel
 from services.tidal_service import create_tidal_playlist
 
+
 class MigrateRequest(BaseModel):
     playlist_ids: List[str]
+
 
 sessions = {}
 
@@ -50,14 +52,16 @@ def spotify_callback(code: str = Query(...)):
                 "display_name": user["display_name"],
             },
             "spotify_playlists": None,
-            "spotify_tracks": {}
+            "spotify_tracks": {},
         }
 
-        return {
-            "message": "Spotify autenticado",
-            "session_id": session_id,
-            "user": sessions[session_id]["spotify_user"],
-        }
+        return RedirectResponse(
+            url=(
+                "http://127.0.0.1:5173/"
+                f"?session_id={session_id}"
+                f"&user={user['display_name']}"
+            )
+        )
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -111,10 +115,7 @@ def spotify_playlists(session_id: str = Query(...)):
 
 
 @app.get("/spotify/playlists/{playlist_id}/tracks")
-def spotify_playlist_tracks(
-    playlist_id: str,
-    session_id: str = Query(...)
-):
+def spotify_playlist_tracks(playlist_id: str, session_id: str = Query(...)):
     session = sessions.get(session_id)
 
     if not session:
@@ -130,12 +131,10 @@ def spotify_playlist_tracks(
     session["spotify_tracks"][playlist_id] = tracks
     return tracks
 
+
 # SPOTIFY PLAYLISTS WITH TRACKS
 @app.post("/spotify/playlists/{playlist_id}/load")
-def load_spotify_playlist(
-    playlist_id: str,
-    session_id: str = Query(...)
-):
+def load_spotify_playlist(playlist_id: str, session_id: str = Query(...)):
     session = sessions.get(session_id)
 
     if not session:
@@ -173,10 +172,7 @@ def load_spotify_playlist(
 
 # PLAYLIST MIGRATION
 @app.post("/tidal/playlists/migrate")
-def migrate_playlists(
-    body: MigrateRequest,
-    session_id: str = Query(...)
-):
+def migrate_playlists(body: MigrateRequest, session_id: str = Query(...)):
     session = sessions.get(session_id)
 
     if not session:
@@ -196,29 +192,26 @@ def migrate_playlists(
         playlist = session["normalized_playlists"].get(playlist_id)
 
         if not playlist:
-            results.append({
-                "playlist_id": playlist_id,
-                "status": "skipped",
-                "reason": "not loaded"
-            })
+            results.append(
+                {
+                    "playlist_id": playlist_id,
+                    "status": "skipped",
+                    "reason": "not loaded",
+                }
+            )
             continue
 
         # TIDAL MIGRATION LOGIC HERE
-        result = create_tidal_playlist(
-            tidal,
-            playlist.name,
-            playlist.tracks
+        result = create_tidal_playlist(tidal, playlist.name, playlist.tracks)
+
+        results.append(
+            {
+                "playlist_id": playlist_id,
+                "name": playlist.name,
+                "status": "migrated",
+                "added": result["added"],
+                "not_found": result["not_found"],
+            }
         )
 
-        results.append({
-            "playlist_id": playlist_id,
-            "name": playlist.name,
-            "status": "migrated",
-            "added": result["added"],
-            "not_found": result["not_found"],
-        })
-
-    return {
-        "message": "Migration prepared",
-        "results": results
-    }
+    return {"message": "Migration prepared", "results": results}

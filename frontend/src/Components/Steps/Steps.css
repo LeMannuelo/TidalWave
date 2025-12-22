@@ -1,0 +1,36 @@
+.spotify-step {
+    max-width: auto;
+    margin: 100px auto;
+    padding: 2rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
+.spotify-step h2 {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.spotify-step p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+}
+
+.spotify-step button {
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    border: 1px solid #1db954;
+    background: transparent;
+    color: #1db954;
+    cursor: pointer;
+}
+
+.spotify-step button:hover {
+    background: #1db954;
+    color: black;
+}
