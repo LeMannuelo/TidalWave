@@ -2,9 +2,12 @@ from fastapi import FastAPI, HTTPException, Query, Header
 from fastapi.responses import RedirectResponse, JSONResponse
 import uuid
 from models.playlist import Playlist
+from auth.tidal import _tidal_sessions, confirm_tidal_login, _tidal_sessions
 from typing import List
 from pydantic import BaseModel
 from services.tidal_service import create_tidal_playlist
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 
 class MigrateRequest(BaseModel):
@@ -26,7 +29,15 @@ from services.spotify_service import (
 
 from auth.tidal import start_tidal_login
 
-app = FastAPI(title="Spotify → TIDAL Migrator")
+app = FastAPI(title="TidalWave")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Tu frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # SPOTIFY AUTH
@@ -55,32 +66,29 @@ def spotify_callback(code: str = Query(...)):
             "spotify_tracks": {},
         }
 
-        return {
-            "message": "Spotify autenticado",
-            "session_id": session_id,
-            "user": sessions[session_id]["spotify_user"],
-        }
+        # Redirigir al frontend 
+        redirect_url = f"http://localhost:5173/?session_id={session_id}&user_id={user['id']}&user_name={user['display_name']}"
+        
+        return RedirectResponse(url=redirect_url)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 # TIDAL AUTH
-@app.get("/auth/tidal/login")
+@app.post("/auth/tidal/login")
 def tidal_login(session_id: str = Query(...)):
-    session = sessions.get(session_id)
+    data = start_tidal_login(session_id)
+    return data
 
-    if not session:
-        raise HTTPException(status_code=401, detail="Invalid session")
 
-    tidal_session, login_info = start_tidal_login()
+@app.post("/auth/tidal/confirm")
+def tidal_confirm(session_id: str = Query(...)):
+    try:
+        return confirm_tidal_login(session_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    session["tidal_session"] = tidal_session
-
-    return {
-        "message": "Autoriza TIDAL usando el código",
-        "login_info": login_info,
-    }
 
 
 # SPOTIFY DATA
@@ -175,14 +183,15 @@ def migrate_playlists(body: MigrateRequest, session_id: str = Query(...)):
 
     if not session:
         raise HTTPException(status_code=401, detail="Invalid session")
+    
+    tidal = _tidal_sessions.get(session_id)
 
-    if "tidal_session" not in session:
+
+    if not tidal or tidal.user is None:
         raise HTTPException(status_code=400, detail="TIDAL not authenticated")
 
     if "normalized_playlists" not in session:
         raise HTTPException(status_code=400, detail="No playlists loaded")
-
-    tidal = session["tidal_session"]
 
     results = []
 

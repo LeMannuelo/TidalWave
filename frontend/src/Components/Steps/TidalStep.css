@@ -1,0 +1,42 @@
+.tidal-step {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 2rem;
+
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+
+    background: #000;
+    text-align: center;
+}
+
+.tidal-step h2 {
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.tidal-step button {
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    border: 1px solid #ffffff;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.tidal-step button:hover {
+    background: #ffffff;
+    color: #000;
+}
+
+.tidal-step button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tidal-step .hint {
+    font-size: 0.9rem;
+    opacity: 0.75;
+    line-height: 1.4;
+}

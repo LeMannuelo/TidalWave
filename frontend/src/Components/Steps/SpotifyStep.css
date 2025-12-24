@@ -1,12 +1,13 @@
 .spotify-step {
-    max-width: auto;
-    margin: 100px auto;
+    max-width: 700px;
+    height: 190px;
+    margin: 40px auto;
     padding: 2rem;
 
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255, 255, 255);
     border-radius: 8px;
 
-    background: rgba(0, 0, 0, 0.6);
+    background: rgb(0, 0, 0);
     text-align: center;
 }
 
@@ -22,15 +23,25 @@
 }
 
 .spotify-step button {
+    font-weight: 500;
     padding: 0.6rem 1.4rem;
     border-radius: 6px;
     border: 1px solid #1db954;
     background: transparent;
     color: #1db954;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 .spotify-step button:hover {
     background: #1db954;
     color: black;
+    transition: 0.3s;
+}
+
+.spotify-step-body {
+    min-height: 90px; /* ajusta fino según tu gusto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
