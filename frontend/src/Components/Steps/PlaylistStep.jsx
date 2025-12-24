@@ -4,7 +4,7 @@ import "./PlaylistStep.css";
 import PlaylistModal from "../Modal/PlaylistModal";
 
 const PlaylistStep = ({ sessionId, selectedPlaylists, setSelectedPlaylists }) => {
-    const [playlists, setPlaylists] = useState([]); // ✅ FALTABA
+    const [playlists, setPlaylists] = useState([]);
     const [activePlaylist, setActivePlaylist] = useState(null);
     const [loading, setLoading] = useState(false);
 

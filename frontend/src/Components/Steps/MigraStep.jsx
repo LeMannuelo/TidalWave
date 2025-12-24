@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { loadPlaylist } from "../../Services/spotify";
+import "./MigraStep.css";
 
 const MigraStep = ({ sessionId, selectedPlaylists }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [done, setDone] = useState(false);
+    const [progress, setProgress] = useState("");
 
     if (!sessionId) return null;
 
     const handleMigrate = async () => {
-
         const playlistIds = Object.entries(selectedPlaylists)
             .filter(([_, checked]) => checked)
             .map(([id]) => id);
@@ -21,25 +23,41 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
         try {
             setLoading(true);
             setError(null);
+            setProgress("");
 
-            // Confirmar login en Tidal
+            // Verificar que Tidal esté autenticado
             const confirmRes = await fetch(
                 `http://127.0.0.1:8000/auth/tidal/confirm?session_id=${sessionId}`,
-                { method: "POST" }  
+                { method: "POST" }
             );
 
             if (!confirmRes.ok) {
-                throw new Error("Error confirmando sesión con Tidal");
+                throw new Error("Error verificando sesión con Tidal");
             }
 
             const confirmData = await confirmRes.json();
-            console.log("Respuesta Tidal confirm:", confirmData); // Para debugging
 
             if (!confirmData.authenticated) {
-                throw new Error("La sesión con Tidal no está confirmada");
+                throw new Error("Debes iniciar sesión en Tidal primero");
             }
 
-            // Migrar playlists
+            // Paso 1: Cargar todas las playlists seleccionadas
+            setProgress(`Cargando ${playlistIds.length} playlist(s)...`);
+
+            for (let i = 0; i < playlistIds.length; i++) {
+                const playlistId = playlistIds[i];
+                setProgress(`Cargando playlist ${i + 1} de ${playlistIds.length}...`);
+                
+                try {
+                    await loadPlaylist(playlistId, sessionId);
+                } catch (err) {
+                    console.error(`Error cargando playlist ${playlistId}:`, err);
+                }
+            }
+
+            // Paso 2: Migrar playlists
+            setProgress("Iniciando migración a Tidal...");
+
             const migrateRes = await fetch(
                 `http://127.0.0.1:8000/tidal/playlists/migrate?session_id=${sessionId}`,
                 {
@@ -55,48 +73,46 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
 
             if (!migrateRes.ok) {
                 const errorData = await migrateRes.json();
-                console.error("Error en migración:", errorData);
                 throw new Error(errorData.detail || "Error migrando playlists");
             }
 
-            const migrateData = await migrateRes.json();
-            console.log("Resultado migración:", migrateData);
-
+            setProgress("");
             setDone(true);
         } catch (err) {
-            console.error("Error completo:", err);
             setError(err.message);
+            setProgress("");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="spotify-step">
+        <div className="migra-step">
             <h2>4. Migra tus playlists</h2>
             <p>
-                Cuando todo esté listo, inicia la migración a Tidal.
+                Cuando todo esté listo, inicia la migración a TIDAL.
             </p>
 
             <button
-                color="#e2241a"
                 onClick={handleMigrate}
                 disabled={loading}
-                className={loading ? "loading" : ""}
             >
-                {loading ? "Migrando..." : "Migrar"}
+                {loading ? "Procesando..." : "Migrar"}
             </button>
 
+            {loading && (
+                <div className="loading-container">
+                    <div className="loader"></div>
+                    {progress && <p className="progress-text">{progress}</p>}
+                </div>
+            )}
+
             {error && (
-                <p style={{ color: "#ff6b6b", marginTop: "1rem" }}>
-                    {error}
-                </p>
+                <p className="error-text"> {error}</p>
             )}
 
             {done && (
-                <p style={{ color: "#e2241a", marginTop: "1rem" }}>
-                    Migración completada exitosamente
-                </p>
+                <p className="success-text">Migración completada exitosamente</p>
             )}
         </div>
     );

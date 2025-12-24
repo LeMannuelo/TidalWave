@@ -13,8 +13,6 @@ const SpotifyStep = ({ sessionId, setSessionId, spotifyUser, setSpotifyUser }) =
         const userName = params.get("user_name");
 
         if (session && userId && !sessionId) {
-            console.log("🔑 Session ID:", session);
-            console.log("👤 User:", userName, `(${userId})`);
             // Guardar los datos en el estado
             setSessionId(session);
             setSpotifyUser({
