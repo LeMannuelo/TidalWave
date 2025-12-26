@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loadPlaylist } from "../../Services/spotify";
+import { API_BASE } from "../../Services/config";
 import "./MigraStep.css";
 
 const MigraStep = ({ sessionId, selectedPlaylists }) => {
@@ -27,7 +27,7 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
 
             // Verificar que Tidal esté autenticado
             const confirmRes = await fetch(
-                `http://127.0.0.1:8000/auth/tidal/confirm?session_id=${sessionId}`,
+                `${API_BASE}/auth/tidal/confirm?session_id=${sessionId}`,
                 { method: "POST" }
             );
 
@@ -59,7 +59,7 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
             setProgress("Iniciando migración a Tidal...");
 
             const migrateRes = await fetch(
-                `http://127.0.0.1:8000/tidal/playlists/migrate?session_id=${sessionId}`,
+                `${API_BASE}/tidal/playlists/migrate?session_id=${sessionId}`,
                 {
                     method: "POST",
                     headers: {

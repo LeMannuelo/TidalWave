@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 import "./SpotifyStep.css";
-import { getSpotifyLoginUrl } from "../../Services/spotify"; 
+import { API_BASE } from "../../Services/config"; 
 
 const SpotifyStep = ({ sessionId, setSessionId, spotifyUser, setSpotifyUser }) => {
     const [loading, setLoading] = useState(true);

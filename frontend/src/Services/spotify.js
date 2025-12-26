@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+import { API_BASE } from './config';
 
 export async function getSpotifyLoginUrl() {
     const res = await fetch(`${API_BASE}/auth/spotify/login`);
@@ -18,7 +18,7 @@ export async function getPlaylists(sessionId) {
 
 export async function loadPlaylist(playlistId, sessionId) {
     const res = await fetch(
-        `http://127.0.0.1:8000/spotify/playlists/${playlistId}/load?session_id=${sessionId}`,
+        `${API_BASE}/spotify/playlists/${playlistId}/load?session_id=${sessionId}`,
         { method: "POST" }
     );
 

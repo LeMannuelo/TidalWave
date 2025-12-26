@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getTidalLoginUrl } from "../../Services/tidal";
+import { API_BASE } from "../../Services/config";
 import "./TidalStep.css";
 
 const TidalStep = ({ sessionId }) => {
