@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { API_BASE } from "../../Services/config";
+import { loadPlaylist } from "../../Services/spotify";
 import "./MigraStep.css";
 
 const MigraStep = ({ sessionId, selectedPlaylists }) => {
@@ -32,7 +33,7 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
             );
 
             if (!confirmRes.ok) {
-                throw new Error("Error verificando sesión con Tidal");
+                throw new Error("Error verificando sesión con Tidal, a veces tarda, solo clickea de nuevo.");
             }
 
             const confirmData = await confirmRes.json();
@@ -111,7 +112,7 @@ const MigraStep = ({ sessionId, selectedPlaylists }) => {
                 <p className="error-text"> {error}</p>
             )}
 
-            {done && (
+            {done && ( // Listo
                 <p className="success-text">Migración completada exitosamente</p>
             )}
         </div>

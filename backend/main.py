@@ -1,13 +1,13 @@
-from fastapi import FastAPI, HTTPException, Query, Header
-from fastapi.responses import RedirectResponse, JSONResponse
+import os
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import RedirectResponse
 import uuid
 from models.playlist import Playlist
-from auth.tidal import _tidal_sessions, confirm_tidal_login, _tidal_sessions
+from auth.tidal import _tidal_sessions, confirm_tidal_login
 from typing import List
 from pydantic import BaseModel
 from services.tidal_service import create_tidal_playlist
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 
 
 class MigrateRequest(BaseModel):
@@ -33,7 +33,10 @@ app = FastAPI(title="TidalWave")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Tu frontend
+    allow_origins=[
+        "http://localhost:5173",
+        os.getenv("FRONTEND_URL", "http://localhost:5173")    
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,8 +69,9 @@ def spotify_callback(code: str = Query(...)):
             "spotify_tracks": {},
         }
 
-        # Redirigir al frontend 
-        redirect_url = f"http://localhost:5173/?session_id={session_id}&user_id={user['id']}&user_name={user['display_name']}"
+        # Redirigir al frontend
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        redirect_url = f"{frontend_url}/?session_id={session_id}&user_id={user['id']}&user_name={user['display_name']}"
         
         return RedirectResponse(url=redirect_url)
 

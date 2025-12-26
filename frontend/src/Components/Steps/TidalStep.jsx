@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { API_BASE } from "../../Services/config";
+import { getTidalLoginUrl } from "../../Services/tidal";
 import "./TidalStep.css";
 
 const TidalStep = ({ sessionId }) => {
@@ -18,13 +19,13 @@ const TidalStep = ({ sessionId }) => {
                 url = "https://" + url;
             }
 
-            // Abrimos TIDAL en otra pestaña
+            // Tidal en new tab
             window.open(url, "_blank", "noopener,noreferrer");
 
             setStarted(true);
         } catch (err) {
             console.error(err);
-            alert("Error al iniciar sesión con TIDAL");
+            alert("Error al iniciar sesión con TIDAL. A veces tarda, clickea de nuevo.");
         } finally {
             setLoading(false);
         }

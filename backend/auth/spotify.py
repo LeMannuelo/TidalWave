@@ -6,11 +6,13 @@ from spotipy import Spotify
 
 load_dotenv()
 
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+
 
 oauth = SpotifyOAuth(
     client_id=os.getenv("CLIENT_ID"),
     client_secret=os.getenv("CLIENT_SECRET"),
-    redirect_uri="http://127.0.0.1:8000/auth/spotify/callback",
+    redirect_uri=f"{BACKEND_URL}/auth/spotify/callback",
     scope=("playlist-read-private", "playlist-read-collaborative", "user-library-read"),
     cache_path=None,
 )

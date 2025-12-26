@@ -40,7 +40,7 @@
 }
 
 .spotify-step-body {
-    min-height: 90px; /* ajusta fino según tu gusto */
+    min-height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;

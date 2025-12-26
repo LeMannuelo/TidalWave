@@ -1,26 +1,24 @@
-import {useState, useEffect} from "react";
+import { useEffect, useState } from "react";
 import "./SpotifyStep.css";
-import { API_BASE } from "../../Services/config"; 
+import { getSpotifyLoginUrl } from "../../Services/spotify"; 
+import { API_BASE } from "../../Services/config";
 
 const SpotifyStep = ({ sessionId, setSessionId, spotifyUser, setSpotifyUser }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Verificar si hay datos de sesión en la URL (después del callback)
         const params = new URLSearchParams(window.location.search);
         const session = params.get("session_id");
         const userId = params.get("user_id");
         const userName = params.get("user_name");
 
         if (session && userId && !sessionId) {
-            // Guardar los datos en el estado
             setSessionId(session);
             setSpotifyUser({
                 id: userId,
                 display_name: userName
             });
             
-            // Limpiar la URL sin recargar la página
             window.history.replaceState({}, document.title, window.location.pathname);
         }
         
@@ -52,10 +50,7 @@ const SpotifyStep = ({ sessionId, setSessionId, spotifyUser, setSpotifyUser }) =
 
             {spotifyUser ? (
                 <div className="user-connected">
-                    <p>Conectado como: <strong>{spotifyUser.display_name}</strong></p>
-                    <p style={{ fontSize: "0.9em", color: "#888" }}>
-                        Session ID: {sessionId.slice(0, 8)}...
-                    </p>
+                    <p>✓ Conectado como: <strong>{spotifyUser.display_name}</strong></p>
                 </div>
             ) : (
                 <button onClick={handleLogin}>

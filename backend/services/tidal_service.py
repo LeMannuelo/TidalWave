@@ -9,7 +9,7 @@ def find_tidal_track(session: tidalapi.Session, track: Track):
         if results["tracks"]:
             return results["tracks"][0]
 
-    # nombre + artista + album
+    # nombre + artista 
     query = f"{track.title} {track.artist}"
     results = session.search(query=query, models=[tidalapi.Track])
 
